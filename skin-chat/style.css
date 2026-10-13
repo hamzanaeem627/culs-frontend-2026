@@ -171,6 +171,7 @@ th, td { padding: .25rem .75rem .25rem 0; text-align: left; }
 .badge.high { background: #fee2e2; color: #991b1b; }
 
 .video { margin: 2rem 0 0; }
+.video video { width: 100%; max-width: 40rem; aspect-ratio: 16 / 9; background: #0f172a; }
 .video figcaption { color: var(--muted); font-size: .9rem; }
 
 details {
