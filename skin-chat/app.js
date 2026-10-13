@@ -276,6 +276,9 @@ async function showConditionFromHash() {
   const id = location.hash.slice(1)
   const condition = await loadCondition(id)
 
+  // the hash changed again while we were fetching: that newer call wins
+  if (location.hash.slice(1) !== id) return
+
   // #chat, #faq … are normal page links, not conditions
   if (!condition) {
     detail.hidden = true
