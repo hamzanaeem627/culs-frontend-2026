@@ -1,0 +1,17 @@
+{
+  "id": "eczema",
+  "name": "Eczema (atopic dermatitis)",
+  "severity": "low",
+  "description": "A common condition that makes skin dry, itchy and inflamed. It often comes and goes in flare-ups.",
+  "symptoms": [
+    "Dry, itchy skin",
+    "Red or darker patches",
+    "Cracked or rough skin"
+  ],
+  "advice": [
+    "Moisturise often",
+    "Avoid known triggers (soap, wool, heat)",
+    "Use lukewarm water",
+    "See a doctor if it does not improve"
+  ]
+}

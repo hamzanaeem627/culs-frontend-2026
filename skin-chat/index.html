@@ -7,6 +7,7 @@
   <meta name="description" content="DermaChat: a thesis prototype chatbot where you upload a photo of your skin and get an AI-based skin condition prediction.">
   <link rel="icon" href="logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
   <link rel="alternate" type="application/json" href="data/conditions.json" title="DermaChat conditions data">
   <script type="application/ld+json">
   {
@@ -69,50 +70,34 @@
 
     <section id="chat" class="chat" aria-labelledby="chat-title">
       <h2 id="chat-title">Chat</h2>
-      <p class="note">Static preview — the chat becomes interactive on Day 3 (JavaScript).</p>
+      <noscript><p class="note">The chat needs JavaScript. Please enable it to try DermaChat.</p></noscript>
 
-      <ol class="messages" aria-label="Conversation">
-        <li class="msg bot">
-          <p><strong>DermaChat:</strong> Hi! Upload a clear, well-lit photo of the skin area you are worried about.</p>
-        </li>
-        <li class="msg user">
-          <figure>
-            <img src="images/forearm.svg"
-                 alt="Illustration of a red, irritated patch of skin on a forearm, uploaded by the user" width="240" height="160" loading="lazy">
-            <figcaption>forearm.svg</figcaption>
-          </figure>
-        </li>
-        <li class="msg bot">
-          <p><strong>DermaChat:</strong> This looks most like <strong>eczema</strong>.</p>
-          <table>
-            <caption>Model predictions for forearm.svg</caption>
-            <thead>
-              <tr><th scope="col">Condition</th><th scope="col">Confidence</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Eczema</td><td><meter min="0" max="1" value="0.82">82%</meter> 82%</td></tr>
-              <tr><td>Psoriasis</td><td><meter min="0" max="1" value="0.12">12%</meter> 12%</td></tr>
-              <tr><td>Acne</td><td><meter min="0" max="1" value="0.06">6%</meter> 6%</td></tr>
-            </tbody>
-          </table>
-          <p>Moisturise often and avoid known triggers. If it does not improve, see a dermatologist.</p>
-        </li>
-      </ol>
+      <ol id="messages" class="messages" aria-label="Conversation" aria-live="polite"></ol>
 
-      <form class="composer" action="#" method="post" enctype="multipart/form-data">
+      <form id="composer" class="composer" action="#" method="post" enctype="multipart/form-data">
         <label for="photo">Skin photo</label>
-        <input id="photo" name="photo" type="file" accept="image/*" required>
+        <div>
+          <input id="photo" name="photo" type="file" accept="image/*" required>
+          <img id="preview" class="preview" alt="Preview of the photo you chose" hidden>
+        </div>
         <label for="message">Message <span class="optional">(optional)</span></label>
-        <textarea id="message" name="message" rows="2" placeholder="e.g. It itches and appeared last week"></textarea>
-        <button type="submit">Send</button>
+        <div>
+          <textarea id="message" name="message" rows="2" placeholder="e.g. It itches and appeared last week" aria-describedby="counter"></textarea>
+          <p id="counter" class="counter">0/200</p>
+        </div>
+        <div class="actions">
+          <button type="submit">Send</button>
+          <button type="button" id="clear" class="secondary">Clear chat</button>
+        </div>
       </form>
+      <p id="status" class="status" role="status"></p>
     </section>
 
     <section id="how" aria-labelledby="how-title">
       <h2 id="how-title">How it works</h2>
       <ol class="steps">
         <li><h3>Upload</h3><p>You attach a photo in the chat.</p></li>
-        <li><h3>Analyse</h3><p>A convolutional neural network classifies the image.</p></li>
+        <li><h3>Analyse</h3><p>The photo is analysed. The prototype uses simple colour features; the thesis will use a neural network.</p></li>
         <li><h3>Answer</h3><p>The bot explains the top predictions and next steps.</p></li>
       </ol>
 
@@ -127,14 +112,13 @@
 
     <section id="conditions" aria-labelledby="conditions-title">
       <h2 id="conditions-title">Conditions in the prototype</h2>
-      <p>The same data is available as JSON: <a href="data/conditions.json"><code>data/conditions.json</code></a>.</p>
-      <ul class="cards">
-        <li class="card"><h3>Acne vulgaris</h3><p class="badge low">Low severity</p><p>Gentle cleansing, non-comedogenic products.</p></li>
-        <li class="card"><h3>Eczema</h3><p class="badge low">Low severity</p><p>Moisturise often, avoid known triggers.</p></li>
-        <li class="card"><h3>Psoriasis</h3><p class="badge medium">Medium severity</p><p>Chronic, a dermatologist can plan treatment.</p></li>
-        <li class="card"><h3>Suspected melanoma</h3><p class="badge high">High severity</p><p>Book a dermatologist as soon as possible.</p></li>
+      <p>Choose a condition to read more. The data is loaded from <a href="data/conditions.json"><code>data/conditions.json</code></a>.</p>
+      <ul id="condition-list" class="cards">
+        <li>Loading conditions…</li>
       </ul>
     </section>
+
+    <section id="condition-detail" class="detail" aria-labelledby="detail-title" hidden></section>
 
     <section id="faq" aria-labelledby="faq-title">
       <h2 id="faq-title">FAQ</h2>
@@ -144,7 +128,7 @@
       </details>
       <details>
         <summary>What happens to my photo?</summary>
-        <p>In the prototype the photo is processed only to make a prediction and is not stored.</p>
+        <p>The photo is analysed on your device (or by the local prototype server) and is not uploaded anywhere else. A small thumbnail is kept in your browser so the chat survives a reload; <em>Clear chat</em> removes it.</p>
       </details>
       <details>
         <summary>Which skin tones does it support?</summary>

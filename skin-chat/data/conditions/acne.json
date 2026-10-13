@@ -1,0 +1,17 @@
+{
+  "id": "acne",
+  "name": "Acne vulgaris",
+  "severity": "low",
+  "description": "Clogged hair follicles cause spots, blackheads and small red bumps, usually on the face, chest or back.",
+  "symptoms": [
+    "Blackheads and whiteheads",
+    "Red bumps or pus-filled spots",
+    "Oily skin"
+  ],
+  "advice": [
+    "Wash gently twice a day",
+    "Use non-comedogenic products",
+    "Do not squeeze spots",
+    "See a doctor if it leaves scars"
+  ]
+}

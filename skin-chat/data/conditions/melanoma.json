@@ -1,0 +1,18 @@
+{
+  "id": "melanoma",
+  "name": "Suspected melanoma",
+  "severity": "high",
+  "description": "Melanoma is a serious skin cancer that often starts as a new or changing mole.",
+  "symptoms": [
+    "Asymmetric mole",
+    "Irregular border",
+    "Several colours",
+    "Larger than 6 mm",
+    "Changing over time"
+  ],
+  "advice": [
+    "Book a dermatologist appointment as soon as possible",
+    "Do not wait for it to change",
+    "Protect your skin from the sun"
+  ]
+}

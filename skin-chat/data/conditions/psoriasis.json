@@ -1,0 +1,16 @@
+{
+  "id": "psoriasis",
+  "name": "Psoriasis",
+  "severity": "medium",
+  "description": "An immune condition where skin cells build up too fast and form raised, scaly patches.",
+  "symptoms": [
+    "Raised red patches",
+    "Silvery scales",
+    "Itching or soreness"
+  ],
+  "advice": [
+    "Keep the skin moisturised",
+    "Avoid smoking and alcohol",
+    "A dermatologist can plan long-term treatment"
+  ]
+}
