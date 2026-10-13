@@ -1,0 +1,20 @@
+{
+  "project": "DermaChat",
+  "version": "0.1.0",
+  "description": "Conditions the DermaChat prototype is planned to recognise, with example model output.",
+  "disclaimer": "DermaChat is a thesis prototype, not a medical device. Always consult a dermatologist.",
+  "conditions": [
+    { "id": "acne", "name": "Acne vulgaris", "severity": "low", "advice": "Gentle cleansing, non-comedogenic products. See a doctor if it scars." },
+    { "id": "eczema", "name": "Eczema (atopic dermatitis)", "severity": "low", "advice": "Moisturise often, avoid known triggers." },
+    { "id": "psoriasis", "name": "Psoriasis", "severity": "medium", "advice": "Chronic condition, a dermatologist can plan treatment." },
+    { "id": "melanoma", "name": "Suspected melanoma", "severity": "high", "advice": "Book a dermatologist appointment as soon as possible." }
+  ],
+  "exampleResponse": {
+    "image": "images/forearm.svg",
+    "predictions": [
+      { "condition": "eczema", "confidence": 0.82 },
+      { "condition": "psoriasis", "confidence": 0.12 },
+      { "condition": "acne", "confidence": 0.06 }
+    ]
+  }
+}

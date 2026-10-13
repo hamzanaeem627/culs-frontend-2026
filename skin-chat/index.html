@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DermaChat — skin condition detection chatbot</title>
+  <meta name="description" content="DermaChat: a thesis prototype chatbot where you upload a photo of your skin and get an AI-based skin condition prediction.">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="alternate" type="application/json" href="data/conditions.json" title="DermaChat conditions data">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DermaChat",
+    "applicationCategory": "HealthApplication",
+    "description": "Chatbot that analyses an uploaded skin photo and suggests a possible skin condition.",
+    "author": { "@type": "Person", "name": "Hamza Naeem" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <a class="brand" href="#main">
+      <img src="logo.svg" alt="" width="40" height="40">
+      <span>DermaChat</span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#chat">Chat</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#conditions">Conditions</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <h1 id="hero-title">Upload a photo. Get a skin check in seconds.</h1>
+        <p>DermaChat is a chatbot for my thesis. You send a picture of your skin, an image
+          classification model looks at it, and the bot answers with the most likely condition
+          and what to do next.</p>
+        <p><a class="button" href="#chat">Try the chat</a></p>
+      </div>
+
+      <!-- Inline SVG: upload → model → answer -->
+      <svg class="hero-art" viewBox="0 0 320 200" role="img" aria-labelledby="flow-title flow-desc">
+        <title id="flow-title">How DermaChat works</title>
+        <desc id="flow-desc">A photo goes into the AI model, which returns a chat answer.</desc>
+        <rect x="10" y="60" width="80" height="80" rx="12" fill="#ccfbf1" stroke="#0f766e" stroke-width="3"/>
+        <circle cx="38" cy="90" r="9" fill="#fbbf24"/>
+        <path d="M18 132l24-26 16 16 12-10 18 20z" fill="#0f766e"/>
+        <path d="M100 100h30" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+        <rect x="140" y="55" width="60" height="90" rx="10" fill="#0f766e"/>
+        <text x="170" y="105" text-anchor="middle" fill="#fff" font-size="16" font-family="sans-serif">AI</text>
+        <path d="M210 100h30" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+        <path d="M250 70h56a8 8 0 0 1 8 8v36a8 8 0 0 1-8 8h-36l-14 12v-12h-6a8 8 0 0 1-8-8V78a8 8 0 0 1 8-8z" fill="#fde68a" stroke="#92400e" stroke-width="2"/>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0 0l10 5-10 5z" fill="#334155"/>
+          </marker>
+        </defs>
+      </svg>
+    </section>
+
+    <section id="chat" class="chat" aria-labelledby="chat-title">
+      <h2 id="chat-title">Chat</h2>
+      <p class="note">Static preview — the chat becomes interactive on Day 3 (JavaScript).</p>
+
+      <ol class="messages" aria-label="Conversation">
+        <li class="msg bot">
+          <p><strong>DermaChat:</strong> Hi! Upload a clear, well-lit photo of the skin area you are worried about.</p>
+        </li>
+        <li class="msg user">
+          <figure>
+            <img src="images/forearm.svg"
+                 alt="Illustration of a red, irritated patch of skin on a forearm, uploaded by the user" width="240" height="160" loading="lazy">
+            <figcaption>forearm.svg</figcaption>
+          </figure>
+        </li>
+        <li class="msg bot">
+          <p><strong>DermaChat:</strong> This looks most like <strong>eczema</strong>.</p>
+          <table>
+            <caption>Model predictions for forearm.svg</caption>
+            <thead>
+              <tr><th scope="col">Condition</th><th scope="col">Confidence</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Eczema</td><td><meter min="0" max="1" value="0.82">82%</meter> 82%</td></tr>
+              <tr><td>Psoriasis</td><td><meter min="0" max="1" value="0.12">12%</meter> 12%</td></tr>
+              <tr><td>Acne</td><td><meter min="0" max="1" value="0.06">6%</meter> 6%</td></tr>
+            </tbody>
+          </table>
+          <p>Moisturise often and avoid known triggers. If it does not improve, see a dermatologist.</p>
+        </li>
+      </ol>
+
+      <form class="composer" action="#" method="post" enctype="multipart/form-data">
+        <label for="photo">Skin photo</label>
+        <input id="photo" name="photo" type="file" accept="image/*" required>
+        <label for="message">Message <span class="optional">(optional)</span></label>
+        <textarea id="message" name="message" rows="2" placeholder="e.g. It itches and appeared last week"></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+
+    <section id="how" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <ol class="steps">
+        <li><h3>Upload</h3><p>You attach a photo in the chat.</p></li>
+        <li><h3>Analyse</h3><p>A convolutional neural network classifies the image.</p></li>
+        <li><h3>Answer</h3><p>The bot explains the top predictions and next steps.</p></li>
+      </ol>
+
+      <figure class="video">
+        <video controls preload="none" width="640" poster="logo.svg">
+          <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm">
+          <p>Your browser does not support video. <a href="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm">Download the video</a>.</p>
+        </video>
+        <figcaption>Placeholder demo video — will be replaced by a screen recording of the prototype.</figcaption>
+      </figure>
+    </section>
+
+    <section id="conditions" aria-labelledby="conditions-title">
+      <h2 id="conditions-title">Conditions in the prototype</h2>
+      <p>The same data is available as JSON: <a href="data/conditions.json"><code>data/conditions.json</code></a>.</p>
+      <ul class="cards">
+        <li class="card"><h3>Acne vulgaris</h3><p class="badge low">Low severity</p><p>Gentle cleansing, non-comedogenic products.</p></li>
+        <li class="card"><h3>Eczema</h3><p class="badge low">Low severity</p><p>Moisturise often, avoid known triggers.</p></li>
+        <li class="card"><h3>Psoriasis</h3><p class="badge medium">Medium severity</p><p>Chronic, a dermatologist can plan treatment.</p></li>
+        <li class="card"><h3>Suspected melanoma</h3><p class="badge high">High severity</p><p>Book a dermatologist as soon as possible.</p></li>
+      </ul>
+    </section>
+
+    <section id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">FAQ</h2>
+      <details>
+        <summary>Is this a medical diagnosis?</summary>
+        <p>No. DermaChat is a thesis prototype and gives an estimate only. Always consult a doctor.</p>
+      </details>
+      <details>
+        <summary>What happens to my photo?</summary>
+        <p>In the prototype the photo is processed only to make a prediction and is not stored.</p>
+      </details>
+      <details>
+        <summary>Which skin tones does it support?</summary>
+        <p>Fairness across skin tones is one of the thesis research questions.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><small>DermaChat — thesis project by <a href="https://github.com/hamzanaeem627">Hamza Naeem</a>, CULS 2026. Not a medical device.</small></p>
+  </footer>
+</body>
+</html>
