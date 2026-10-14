@@ -12,6 +12,7 @@ import { extractFeatures, predict } from './analyse.js'
 
 const STORAGE_KEY = 'dermachat-messages'
 const MAX_LENGTH = 200
+const MAX_PHOTO_MB = 10
 
 const WELCOME = {
   from: 'bot',
@@ -55,6 +56,19 @@ function percent(n) {
   return `${Math.round(n * 100)}%`
 }
 
+// '2026-10-14T09:05:00.000Z' → '11:05' (in the user's own time zone)
+function clockTime(iso) {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+// returns an error message, or '' when the photo is fine
+function checkPhoto(file) {
+  if (!file) return 'Please choose a photo first.'
+  if (!file.type.startsWith('image/')) return 'That file is not an image. Please choose a photo.'
+  if (file.size > MAX_PHOTO_MB * 1024 * 1024) return `That photo is too big. Please use one under ${MAX_PHOTO_MB} MB.`
+  return ''
+}
+
 // ---------- state ----------
 
 function loadMessages() {
@@ -75,7 +89,7 @@ function saveMessages() {
 }
 
 function addMessage(message) {
-  state.messages.push(message)
+  state.messages.push({ ...message, time: new Date().toISOString() })
   saveMessages()
   render()
 }
@@ -116,6 +130,11 @@ function renderMessage(message) {
 
   if (message.advice) {
     item.append(el('p', {}, message.advice))
+  }
+
+  // older saved messages have no time, so they simply show none
+  if (message.time) {
+    item.append(el('small', {}, el('time', { dateTime: message.time }, clockTime(message.time))))
   }
 
   return item
@@ -179,8 +198,9 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault() // stay on the page, JavaScript handles the form now
 
   const file = photoInput.files[0]
-  if (!file) {
-    status.textContent = 'Please choose a photo first.'
+  const problem = checkPhoto(file)
+  if (problem) {
+    status.textContent = problem
     photoInput.focus()
     return
   }
