@@ -1,10 +1,14 @@
 {
   "name": "dermachat",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "DermaChat: skin condition detection chatbot (thesis prototype)",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node tests/e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
   }
 }
