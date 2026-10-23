@@ -48,11 +48,11 @@ Before the talk, click *Clear chat* on both pages so you start from the welcome 
 
 > I send features, not the photo. It is less data, and it is better for privacy: a photo of your skin is personal.
 >
-> And the server is optional. On GitHub Pages there is no server: `fetch` gets a 404 and the same `predict()` function runs in the browser.
+> And the server is optional. On GitHub Pages there is no server: `api/analyze` answers 405 (Method Not Allowed) and the same `predict()` function runs in the browser.
 > I wrote `analyse.js` once and both sides import it.
 
 Show it: switch to the **live** page and send **Red patch**. It says *analysed in the browser*.
-In Network, the `analyze` request is red (404), and the chat still works.
+In Network, the `analyze` request is red (405), and the chat still works.
 
 ### 6. What went wrong (45 s)
 
@@ -93,7 +93,7 @@ In memory in the `state` object (`conditions`, `messages`, `busy`). `messages` i
 It is one question and one answer: request, response, done. SSE is for the server pushing many messages over time, WebSocket for two-way live traffic like a multi-user chat. Neither is needed here.
 
 **What happens when the server disappears?**
-`fetch` fails or gets 404, and the `catch` in `analyse()` runs `predict()` in the browser. The line under the chat changes to *analysis runs in your browser*. Show it on the live page, or in DevTools: Network, right-click `analyze`, **Block request URL**, send again.
+`fetch` fails or gets an error status (GitHub Pages: 405), and the `catch` in `analyse()` runs `predict()` in the browser. The line under the chat changes to *analysis runs in your browser*. Show it on the live page, or in DevTools: Network, right-click `analyze`, **Block request URL**, send again.
 
 **Why `type="module"`?**
 So `app.js` can `import` from `analyse.js`. The same file is imported by `server.js` in Node.
