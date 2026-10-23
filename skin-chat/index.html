@@ -79,6 +79,12 @@
         <div>
           <input id="photo" name="photo" type="file" accept="image/*" required>
           <img id="preview" class="preview" alt="Preview of the photo you chose" hidden>
+          <div class="samples" id="samples">
+            <p>No photo at hand? Try a sample:</p>
+            <button type="button" data-sample="images/samples/red-patch.png">Red patch</button>
+            <button type="button" data-sample="images/samples/scaly-plaques.png">Scaly plaques</button>
+            <button type="button" data-sample="images/samples/dark-spot.png">Dark spot</button>
+          </div>
         </div>
         <label for="message">Message <span class="optional">(optional)</span></label>
         <div>
@@ -91,6 +97,7 @@
         </div>
       </form>
       <p id="status" class="status" role="status"></p>
+      <p id="engine" class="engine">Checking for the analysis server…</p>
     </section>
 
     <section id="how" aria-labelledby="how-title">
@@ -102,11 +109,11 @@
       </ol>
 
       <figure class="video">
-        <video controls preload="none" width="640" poster="logo.svg">
-          <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm">
-          <p>Your browser does not support video. <a href="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm">Download the video</a>.</p>
+        <video controls preload="metadata" width="640">
+          <source src="demo.webm" type="video/webm">
+          <p>Your browser does not support video. <a href="demo.webm">Download the video</a>.</p>
         </video>
-        <figcaption>Placeholder demo video — will be replaced by a screen recording of the prototype.</figcaption>
+        <figcaption>Screen recording of the prototype: two sample photos, a condition page and an unknown condition.</figcaption>
       </figure>
     </section>
 

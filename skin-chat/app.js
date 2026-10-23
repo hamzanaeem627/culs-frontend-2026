@@ -1,4 +1,4 @@
-// DermaChat, Day 3: the page comes alive.
+// DermaChat, Day 3 + 4: the page comes alive.
 //
 // input     → file picker, textarea, Enter key
 // events    → submit, change, input, keydown, click, hashchange
@@ -7,6 +7,8 @@
 // fetch     → condition data comes from data/*.json
 // server    → photo features are sent to POST api/analyze (server.js);
 //             on GitHub Pages there is no server, so we analyse in the browser
+// Day 4     → sample photos, a visible "where does the analysis run" line,
+//             and friendly messages for unknown conditions or missing files
 
 import { extractFeatures, predict } from './analyse.js'
 
@@ -35,7 +37,9 @@ const messageInput = document.querySelector('#message')
 const counter = document.querySelector('#counter')
 const sendButton = form.querySelector('button[type="submit"]')
 const clearButton = document.querySelector('#clear')
+const samples = document.querySelector('#samples')
 const status = document.querySelector('#status')
+const engine = document.querySelector('#engine')
 const conditionList = document.querySelector('#condition-list')
 const detail = document.querySelector('#condition-detail')
 
@@ -188,8 +192,29 @@ async function analyse(features) {
 }
 
 async function adviceFor(id) {
-  const condition = await loadCondition(id)
-  return condition ? condition.advice[0] + '.' : ''
+  try {
+    const condition = await loadCondition(id)
+    return condition ? condition.advice[0] + '.' : ''
+  } catch {
+    return '' // the answer still makes sense without the advice line
+  }
+}
+
+// Tells the user where the photo is analysed: on server.js or in this browser.
+function showEngine(source) {
+  engine.replaceChildren(source === 'server'
+    ? el('span', {}, 'Analysis runs on ', el('strong', {}, 'the server'), ' (server.js).')
+    : el('span', {}, 'No server found: analysis runs ', el('strong', {}, 'in your browser'), '.'))
+}
+
+async function checkServer() {
+  try {
+    const response = await fetch('api/health', { signal: AbortSignal.timeout(2000) })
+    const data = response.ok ? await response.json() : {}
+    showEngine(data.ok ? 'server' : 'browser')
+  } catch {
+    showEngine('browser') // GitHub Pages answers 404 HTML, or the server is down
+  }
 }
 
 // ---------- chat events ----------
@@ -221,6 +246,7 @@ form.addEventListener('submit', async (event) => {
     updateCounter()
 
     const result = await analyse(features)
+    showEngine(result.source) // the server may have appeared or gone since start
     const top = result.predictions[0]
     const urgent = top.condition === 'melanoma'
 
@@ -262,6 +288,27 @@ messageInput.addEventListener('keydown', (event) => {
   }
 })
 
+// A sample photo goes into the same file input, so the rest of the chat
+// does not know (or care) whether the user picked it or we did.
+samples.addEventListener('click', async (event) => {
+  const button = event.target.closest('button[data-sample]')
+  if (!button) return
+  try {
+    const response = await fetch(button.dataset.sample)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const blob = await response.blob()
+    const name = button.dataset.sample.split('/').pop()
+    const files = new DataTransfer()
+    files.items.add(new File([blob], name, { type: 'image/png' }))
+    photoInput.files = files.files
+    photoInput.dispatchEvent(new Event('change'))
+    status.textContent = `Sample "${button.textContent}" chosen. Press Send.`
+    sendButton.focus()
+  } catch (error) {
+    status.textContent = `Could not load the sample photo (${error.message}).`
+  }
+})
+
 clearButton.addEventListener('click', () => {
   state.messages = [WELCOME]
   saveMessages()
@@ -273,14 +320,27 @@ clearButton.addEventListener('click', () => {
 
 const cache = new Map()
 
+// null      → not a condition we know
+// throws    → we know it, but its file is missing or broken
 async function loadCondition(id) {
   if (!state.conditions.some((c) => c.id === id)) return null
   if (!cache.has(id)) {
     const response = await fetch(`data/conditions/${id}.json`)
-    if (!response.ok) return null
+    if (!response.ok) throw new Error(`data/conditions/${id}.json: HTTP ${response.status}`)
     cache.set(id, await response.json())
   }
   return cache.get(id)
+}
+
+function showDetail(...children) {
+  const heading = children[0]
+  detail.replaceChildren(...children, el('p', {}, el('a', { href: '#conditions' }, '← Back to all conditions')))
+  detail.hidden = false
+  heading.focus() // move keyboard and screen reader users to the new content
+}
+
+function showDetailProblem(title, text) {
+  showDetail(el('h2', { id: 'detail-title', tabIndex: -1 }, title), el('p', {}, text))
 }
 
 function renderConditionList() {
@@ -292,32 +352,41 @@ function renderConditionList() {
   ))
 }
 
+const currentHash = () => decodeURIComponent(location.hash.slice(1))
+
 async function showConditionFromHash() {
-  const id = location.hash.slice(1)
-  const condition = await loadCondition(id)
+  const id = currentHash()
 
-  // the hash changed again while we were fetching: that newer call wins
-  if (location.hash.slice(1) !== id) return
-
-  // #chat, #faq … are normal page links, not conditions
-  if (!condition) {
+  // no hash, or #chat, #faq … : normal page links, not conditions
+  if (!id || document.getElementById(id)) {
     detail.hidden = true
     return
   }
 
-  const heading = el('h2', { id: 'detail-title', tabIndex: -1 }, condition.name)
-  detail.replaceChildren(
-    heading,
+  let condition
+  try {
+    condition = await loadCondition(id)
+  } catch (error) {
+    if (currentHash() !== id) return
+    return showDetailProblem('Could not load this condition', `The data file is missing or broken (${error.message}). Please try again later.`)
+  }
+
+  // the hash changed again while we were fetching: that newer call wins
+  if (currentHash() !== id) return
+
+  if (!condition) {
+    return showDetailProblem('Unknown condition', `DermaChat does not know "${id}". Choose one of the conditions in the list.`)
+  }
+
+  showDetail(
+    el('h2', { id: 'detail-title', tabIndex: -1 }, condition.name),
     el('p', { className: `badge ${condition.severity}` }, `${condition.severity} severity`),
     el('p', {}, condition.description),
     el('h3', {}, 'Common signs'),
     el('ul', {}, ...condition.symptoms.map((s) => el('li', {}, s))),
     el('h3', {}, 'What you can do'),
     el('ul', {}, ...condition.advice.map((a) => el('li', {}, a))),
-    el('p', {}, el('a', { href: '#conditions' }, '← Back to all conditions')),
   )
-  detail.hidden = false
-  heading.focus() // move keyboard and screen reader users to the new content
 }
 
 window.addEventListener('hashchange', showConditionFromHash)
@@ -327,9 +396,11 @@ window.addEventListener('hashchange', showConditionFromHash)
 async function start() {
   render()
   updateCounter()
+  checkServer()
 
   try {
     const response = await fetch('data/conditions.json')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const data = await response.json()
     state.conditions = data.conditions
     renderConditionList()

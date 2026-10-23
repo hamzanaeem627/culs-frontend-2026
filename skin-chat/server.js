@@ -19,6 +19,9 @@ const types = {
   '.js': 'text/javascript',
   '.json': 'application/json',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.webm': 'video/webm',
 }
 
 function sendJson(res, status, data) {
